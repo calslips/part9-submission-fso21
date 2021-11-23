@@ -4,6 +4,8 @@
   "description": "Full Stack Open part 9 exercises 9.1-9.7",
   "main": "index.js",
   "scripts": {
+    "ts-node": "ts-node",
+    "calculateBmi": "ts-node bmiCalculator.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
