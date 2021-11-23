@@ -1,0 +1,19 @@
+{
+  "name": "9.1-9.7",
+  "version": "1.0.0",
+  "description": "Full Stack Open part 9 exercises 9.1-9.7",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calslips/part9-submission-fso21.git"
+  },
+  "author": "Caleb Phillips",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/calslips/part9-submission-fso21/issues"
+  },
+  "homepage": "https://github.com/calslips/part9-submission-fso21#readme"
+}
