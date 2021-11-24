@@ -1,3 +1,23 @@
+interface BmiValues {
+  height: number,
+  weight: number
+}
+
+const evaluateArgs = (args: Array<string>): BmiValues => {
+  if (args.length !== 4) throw new Error(
+    'Input one value for your height and one value for your weight.'
+    )
+
+  if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
+    return {
+      height: Number(args[2]),
+      weight: Number(args[3])
+    }
+  } else {
+    throw new Error('Only number values are accepted.')
+  }
+}
+
 const bmiFormula = (cm: number, kg: number): number => {
   return kg / (cm / 100) ** 2
 }
@@ -24,4 +44,13 @@ const calculateBmi = (height: number, weight: number): string => {
   }
 }
 
-console.log(calculateBmi(180, 74))
+try {
+  const {height, weight} = evaluateArgs(process.argv)
+  console.log(calculateBmi(height, weight))
+} catch (error: unknown) {
+  let errorMessage = 'Oops, something went wrong.'
+  if (error instanceof Error) {
+    errorMessage += ' Error: ' + error.message
+  }
+  console.log(errorMessage)
+}
