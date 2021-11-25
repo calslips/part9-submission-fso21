@@ -7,6 +7,28 @@ interface Result {
   rating: number,
   ratingDescription: string
 }
+
+interface InputValues {
+  hoursArray: Array<number>,
+  targetValue: number
+}
+
+const parseArgs = (args: Array<string>): InputValues => {
+  if (args.length < 4) throw new Error('Not enough arguments.')
+
+  const hours = args.slice(3)
+  const isNumber = (currentValue: string): Boolean => !isNaN(Number(currentValue))
+
+  if (!isNaN(Number(args[2])) && hours.every(isNumber)) {
+    return {
+      hoursArray: hours.map((hour) => Number(hour)),
+      targetValue: Number(args[2])
+    }
+  } else {
+    throw new Error('Only number values are accepted.')
+  }
+}
+
 const calculateRating = (averageHours: number, target: number): number => {
   let rounded = Math.round(averageHours)
   if (rounded > target) {
@@ -17,13 +39,18 @@ const calculateRating = (averageHours: number, target: number): number => {
     return 1
   }
 }
+
 const calculateExercises = (exerciseHours: Array<number>, dailyTarget: number): Result => {
   const trainingDays = exerciseHours.filter((hour) => hour > 0).length
   const totalHours = exerciseHours.reduce((previous, current) => previous + current)
   const average = (totalHours / exerciseHours.length)
-  const success = average > dailyTarget
+  const success = average >= dailyTarget
   const rating = calculateRating(average, dailyTarget)
-  const ratingDescription = rating === 3 ? 'Above and beyond' : rating === 2 ? 'Within target range' : 'Target unmet'
+  const ratingDescription = rating === 3
+    ? 'Above and beyond!'
+    : rating === 2
+      ? 'Room for improvement.'
+      : 'Where is the effort?'
 
   return {
     periodLength: exerciseHours.length,
@@ -36,4 +63,13 @@ const calculateExercises = (exerciseHours: Array<number>, dailyTarget: number): 
   }
 }
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2))
+try {
+  const {hoursArray, targetValue} = parseArgs(process.argv)
+  console.log(calculateExercises(hoursArray, targetValue))
+} catch (error: unknown) {
+  let errorMessage = 'Oops, something went wrong.'
+  if (error instanceof Error) {
+    errorMessage += ' Error: ' + error.message
+  }
+  console.log(errorMessage)
+}
