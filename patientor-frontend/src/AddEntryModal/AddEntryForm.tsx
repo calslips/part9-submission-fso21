@@ -33,11 +33,32 @@ type ValidateDischarge =
       criteria: string
     };
 
+type ValidateSickLeave =
+  | {
+    startDate: string,
+    endDate: string
+    }
+  | {
+    startDate: string
+    }
+  | {
+    endDate: string
+    };
+
+
 const entryTypeOptions: EntryTypeOption[] = [
   { value: EntryType.HealthCheck },
   { value: EntryType.OccupationalHealthcare },
   { value: EntryType.Hospital }
 ];
+
+const isDate = (date: string): boolean => {
+  if (date.length === 0) {
+    return true;
+  }
+
+  return Boolean(Date.parse(date));
+};
 
 export const AddEntryForm = ({ onSubmit, onCancel}: Props) => {
   const [{ diagnoses }] = useStateValue();
@@ -64,12 +85,17 @@ export const AddEntryForm = ({ onSubmit, onCancel}: Props) => {
       onSubmit={onSubmit}
       validate={values => {
         const requiredError = 'Field is required';
-        const errors: { [field: string]: string | ValidateDischarge} = {};
+        const dateError = 'Invalid date format';
+
+        const errors: { [field: string]: string | ValidateDischarge | ValidateSickLeave } = {};
         if (!values.description) {
           errors.description = requiredError;
         }
         if (!values.date) {
           errors.date = requiredError;
+        }
+        if (values.date && !isDate(values.date)) {
+          errors.date = dateError;
         }
         if (!values.specialist) {
           errors.specialist = requiredError;
@@ -80,8 +106,26 @@ export const AddEntryForm = ({ onSubmit, onCancel}: Props) => {
         if (values.type === 'HealthCheck' && !values.healthCheckRating) {
           errors.healthCheckRating = requiredError;
         }
-        if (values.type === 'OccupationalHealthcare' && !values.employerName) {
-          errors.employerName = requiredError;
+        if (values.type === 'OccupationalHealthcare') {
+          if (!values.employerName) {
+            errors.employerName = requiredError;
+          }
+          if (values.sickLeave) {
+            if (!(isDate(values.sickLeave.startDate) || isDate(values.sickLeave.endDate))) {
+              errors.sickLeave = {
+                startDate: dateError,
+                endDate: dateError
+              };
+            } else if (!isDate(values.sickLeave.startDate)) {
+              errors.sickLeave = {
+                startDate: dateError
+              };
+            } else if (!isDate(values.sickLeave.endDate)) {
+              errors.sickLeave = {
+                endDate: dateError
+              };
+            }
+          }
         }
         if (values.type === 'Hospital') {
           if (!(values.discharge.date || values.discharge.criteria)) {
@@ -97,6 +141,18 @@ export const AddEntryForm = ({ onSubmit, onCancel}: Props) => {
             errors.discharge = {
               criteria: requiredError
             };
+          }
+          if (values.discharge.date && !isDate(values.discharge.date)) {
+            if (values.discharge.criteria) {
+              errors.discharge = {
+                date: dateError
+              };
+            } else if (!values.discharge.criteria) {
+              errors.discharge = {
+                date: dateError,
+                criteria: requiredError
+              };
+            }
           }
         }
         return errors;
